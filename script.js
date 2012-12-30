@@ -53,11 +53,43 @@ function physics(){
 	
 	ball.yv += ball.g;
 	ball.y += ball.yv;
-	if (ball.y + ball.r > _height * .5){
-		ball.y = _height * .5 - ball.r;
-		ball.yv *= -1;
-	}
 	
+	// for ground collision, first we get the ground rotation angle
+	var ga = Math.atan2(_tilt * 16, _width);
+	// now rotate the ball position as if the ground should be the x-axis
+	var oldX = ball.x;
+	var oldY = ball.y - Math.round(_height * .5 - _tilt * 8); // minus topLeft
+	var newX = Math.cos(ga) * oldX + Math.sin(ga) * oldY;
+	var newY = -Math.sin(ga) * oldX + Math.cos(ga) * oldY;
+	if (newY > -ball.r){
+		// now unembed the rotated ball coords, reverse rotate them, and apply them
+		ga *= -1;
+		oldX = newX;
+		oldY = -1 - ball.r;
+		newX = Math.cos(ga) * oldX + Math.sin(ga) * oldY;
+		newY = -Math.sin(ga) * oldX + Math.cos(ga) * oldY;
+		ball.x = newX;
+		ball.y = newY + Math.round(_height * .5 - _tilt * 8); // plus topLeft
+		ga *= -1;
+		
+		// adjust ball velocity angle
+		var oldXV = ball.xv;
+		var oldYV = ball.yv;
+		var newXV = Math.cos(ga) * oldXV + Math.sin(ga) * oldYV;
+		var newYV = -(-Math.sin(ga) * oldXV + Math.cos(ga) * oldYV);
+		oldXV = newXV;
+		oldYV = newYV;
+		ga *= -1;
+		ball.xv = newXV = Math.cos(ga) * oldXV + Math.sin(ga) * oldYV;
+		ball.yv = newYV = -Math.sin(ga) * oldXV + Math.cos(ga) * oldYV;
+		
+		// adjust ball speed
+		var oldVS = Math.sqrt(ball.xv * ball.xv + ball.yv * ball.yv);
+		var oldVA = Math.atan2(ball.yv, ball.xv);
+		var newVS = oldVS * .8 + 6;
+		ball.xv = Math.cos(oldVA) * newVS;
+		ball.yv = Math.sin(oldVA) * newVS;
+	}
 }
 
 $(document).ready(function (){
