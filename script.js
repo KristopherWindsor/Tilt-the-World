@@ -1,12 +1,17 @@
 
 var _tilt = 0, _height = null, _width = null;
 
-var ball = {x: 100, y: 100, xv: 1, yv: 1, r: 30};
+var ball = {x: 100, y: 100, xv: 10, yv: 0, r: 30, g: 1};
 
 function resize(){
 	var ctx = $('#c')[0].getContext('2d');
 	_width = ctx.canvas.width  = $('html').width();
 	_height = ctx.canvas.height = $('html').height();
+}
+
+function step(){
+	physics();
+	render();
 }
 
 function render(){
@@ -35,6 +40,26 @@ function render(){
 	ctx.fill();
 }
 
+function physics(){
+	ball.x += ball.xv;
+	if (ball.x + ball.r > _width){
+		ball.x = _width - ball.r;
+		ball.xv *= -1;
+	}
+	if (ball.x - ball.r < 0){
+		ball.x = ball.r;
+		ball.xv *= -1;
+	}
+	
+	ball.yv += ball.g;
+	ball.y += ball.yv;
+	if (ball.y + ball.r > _height * .5){
+		ball.y = _height * .5 - ball.r;
+		ball.yv *= -1;
+	}
+	
+}
+
 $(document).ready(function (){
 	window.ondeviceorientation = function(event) {
 		_tilt = Math.max(-30, Math.min(30, Math.round(event.beta * 1 / 1)));
@@ -43,5 +68,5 @@ $(document).ready(function (){
 	window.addEventListener('resize', resize, false);
 	resize();
 	
-	setInterval(render, 60);
+	setInterval(step, 60);
 });
