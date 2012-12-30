@@ -3,10 +3,13 @@ var _tilt = 0, _height = null, _width = null;
 
 var ball = {x: 100, y: 100, xv: 10, yv: 0, r: 30, g: 1};
 
+var point = {x: 100, y: 100, r: 10, s: -1};
+
 function resize(){
 	var ctx = $('#c')[0].getContext('2d');
 	_width = ctx.canvas.width  = $('html').width();
 	_height = ctx.canvas.height = $('html').height();
+	point.y = Math.min(point.y, _height * .45);
 }
 
 function step(){
@@ -38,6 +41,18 @@ function render(){
 	ctx.closePath();
 	ctx.fillStyle = "#ff2222";
 	ctx.fill();
+	
+	// point
+	ctx.beginPath();
+	ctx.arc(point.x, point.y, point.r, 0 , 2 * Math.PI, false);
+	ctx.closePath();
+	ctx.fillStyle = "#662244";
+	ctx.fill();
+	
+	// score
+	ctx.fillStyle = "#000000";
+	ctx.font = "bold 16px Arial";
+	ctx.fillText("Score: " + point.s, 20, 20);
 }
 
 function physics(){
@@ -86,9 +101,16 @@ function physics(){
 		// adjust ball speed
 		var oldVS = Math.sqrt(ball.xv * ball.xv + ball.yv * ball.yv);
 		var oldVA = Math.atan2(ball.yv, ball.xv);
-		var newVS = oldVS * .8 + 6;
+		var newVS = oldVS * .76 + 6;
 		ball.xv = Math.cos(oldVA) * newVS;
 		ball.yv = Math.sin(oldVA) * newVS;
+	}
+	
+	// point collision
+	if ((ball.x - point.x) * (ball.x - point.x) + (ball.y - point.y) * (ball.y - point.y) < (ball.r + point.r) * (ball.r + point.r)){
+		point.s++;
+		point.x = Math.floor(Math.random() * _width);
+		point.y = Math.floor(Math.random() * _height * .45);
 	}
 }
 
