@@ -52,7 +52,10 @@ function render(){
 	// score
 	ctx.fillStyle = "#000000";
 	ctx.font = "bold 16px Arial";
-	ctx.fillText("Score: " + point.s, 20, 20);
+	if (_width < _height)
+		ctx.fillText("Please play in landscape mode", 20, 20);
+	else
+		ctx.fillText("Score: " + point.s, 20, 20);
 }
 
 function physics(){
